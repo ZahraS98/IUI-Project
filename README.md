@@ -12,3 +12,9 @@ https://trello.com/b/l7HakDDk/video-game-recommender
 
 Google docs:
 https://docs.google.com/document/d/1dmfAgCpU4yzeFJwMSG7FvFIMBQGlrrOon0DcKsstwRw/edit
+
+_________________________________________________________________________________________________________________
+
+Link to Dataset:
+https://www.kaggle.com/datasets/tristan581/all-55000-games-on-steam-november-2022?resource=download
+
