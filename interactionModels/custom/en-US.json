@@ -1,0 +1,312 @@
+{
+  "interactionModel": {
+    "languageModel": {
+      "invocationName": "g. g. easy",
+      "intents": [
+        {
+          "name": "AMAZON.CancelIntent",
+          "samples": []
+        },
+        {
+          "name": "AMAZON.HelpIntent",
+          "samples": []
+        },
+        {
+          "name": "AMAZON.StopIntent",
+          "samples": []
+        },
+        {
+          "name": "HelloWorldIntent",
+          "slots": [],
+          "samples": [
+            "hello",
+            "how are you",
+            "say hi world",
+            "say hi",
+            "hi",
+            "say hello world",
+            "say hello"
+          ]
+        },
+        {
+          "name": "AMAZON.NavigateHomeIntent",
+          "samples": []
+        },
+        {
+          "name": "AMAZON.FallbackIntent",
+          "samples": []
+        },
+        {
+          "name": "NeedGameIntent",
+          "slots": [
+            {
+              "name": "type",
+              "type": "game_type"
+            },
+            {
+              "name": "game",
+              "type": "game"
+            }
+          ],
+          "samples": [
+            "Just {type} {game}",
+            "I just played {type} {game} until now",
+            "I only know {type} ",
+            "I prefer {type} but {type} are also ok ",
+            "I really enjoy {type} ",
+            "Only {type}",
+            "I only play {type} type of {game}",
+            "{type} {game}",
+            "{type}",
+            "I like {type} {game}",
+            "I want to play a {type}",
+            "I want to play an {type}",
+            "I want to play a {game}",
+            "I want to play an {type} {game}",
+            "Can you suggest an {type} {game}",
+            "Can you suggest a {type} {game}",
+            "I want to play a {type} {game}"
+          ]
+        },
+        {
+          "name": "GiveGenreDefinitionIntent",
+          "slots": [
+            {
+              "name": "type",
+              "type": "game_type"
+            }
+          ],
+          "samples": [
+            "how would you classify {type}",
+            "help me to understand what this {type} is",
+            "i dont understand what you mean with {type}",
+            "i dont know what youre talking about. Please elaborate on {type} games",
+            "i dont understand what you mean with the {type} genre",
+            "what is the {type} category",
+            "i want to know about {type}",
+            "would you mind explaining what {type} is",
+            "tell me more about {type}",
+            "can you explain what kind of game {type} is ",
+            "tell me about the {type} genre",
+            "please explain {type} to me",
+            "what is {type}",
+            "I don\u0027t know what you mean with {type}",
+            "could you please explain what {type} are",
+            "can you explain this {type} genre to me",
+            "what exactly are {type} games",
+            "what does {type} mean"
+          ]
+        },
+        {
+          "name": "GiveExampleIntent",
+          "slots": [],
+          "samples": [
+            "I don\u0027t have knowledge about video game genres",
+            "please elaborate some types of video games",
+            "I don\u0027t have a concept of video game genres",
+            "I need an example because currently I can\u0027t picture what you are talking about",
+            "get an example",
+            "one example for me",
+            "show an example",
+            "can you tell me an example",
+            "give us an example",
+            "get us an example",
+            "can you get us an example",
+            "example please",
+            "give example",
+            "example",
+            "give me an example",
+            "name some genres to me",
+            "could you please give an example of genres"
+          ]
+        }
+      ],
+      "types": [
+        {
+          "values": [
+            {
+              "name": {
+                "value": "game",
+                "synonyms": [
+                  "video games",
+                  "games",
+                  "video game"
+                ]
+              }
+            }
+          ],
+          "name": "game"
+        },
+        {
+          "values": [
+            {
+              "name": {
+                "value": "party"
+              }
+            },
+            {
+              "name": {
+                "value": "multiplayer",
+                "synonyms": [
+                  "massively multiplayer online",
+                  "massively multiplayer",
+                  "MMO"
+                ]
+              }
+            },
+            {
+              "name": {
+                "value": "sport",
+                "synonyms": [
+                  "racing",
+                  "e-sports",
+                  "sports"
+                ]
+              }
+            },
+            {
+              "name": {
+                "value": "simulator",
+                "synonyms": [
+                  "simulation"
+                ]
+              }
+            },
+            {
+              "name": {
+                "value": "strategy",
+                "synonyms": [
+                  "grand strategy wargames",
+                  "tower defense",
+                  "Wargames",
+                  "turn based tactics",
+                  "TBT",
+                  "turn based strategy",
+                  "TBS",
+                  "ARTS",
+                  "multiplayer online battle arena",
+                  "MOBA",
+                  "real-time tactics",
+                  "RTT",
+                  "real-time strategy",
+                  "RTS",
+                  "auto battler",
+                  "auto battle",
+                  "artillery",
+                  "4X "
+                ]
+              }
+            },
+            {
+              "name": {
+                "value": "sandbox"
+              }
+            },
+            {
+              "name": {
+                "value": "puzzle",
+                "synonyms": [
+                  "match",
+                  "matching",
+                  "hidden object",
+                  "riddle"
+                ]
+              }
+            },
+            {
+              "name": {
+                "value": "horror",
+                "synonyms": [
+                  "fright"
+                ]
+              }
+            },
+            {
+              "name": {
+                "value": "adventure",
+                "synonyms": [
+                  "visual novels"
+                ]
+              }
+            },
+            {
+              "name": {
+                "value": "battle-royale"
+              }
+            },
+            {
+              "name": {
+                "value": "survival"
+              }
+            },
+            {
+              "name": {
+                "value": "stealth",
+                "synonyms": [
+                  "sneak",
+                  "sneaky "
+                ]
+              }
+            },
+            {
+              "name": {
+                "value": "platformer"
+              }
+            },
+            {
+              "name": {
+                "value": "fighting",
+                "synonyms": [
+                  "melee combat ",
+                  "beat them ups",
+                  "beat \u0027em ups",
+                  "brawler",
+                  "close-ranged combat",
+                  "combat"
+                ]
+              }
+            },
+            {
+              "name": {
+                "value": "real-time-strategy",
+                "synonyms": [
+                  "rts"
+                ]
+              }
+            },
+            {
+              "name": {
+                "value": "role-playing",
+                "synonyms": [
+                  "storyline",
+                  "first person roleplay",
+                  "role play",
+                  "massively multiplayer online role playing",
+                  "FPRPG",
+                  "rougelike",
+                  "mmorpg",
+                  " rpg"
+                ]
+              }
+            },
+            {
+              "name": {
+                "value": "shooting",
+                "synonyms": [
+                  "shoot them ups",
+                  "shoot \u0027em ups",
+                  "hero shooters",
+                  "first person shooters",
+                  "FPS ",
+                  "shooter"
+                ]
+              }
+            }
+          ],
+          "name": "game_type"
+        }
+      ]
+    }
+  },
+  "version": "15"
+}
