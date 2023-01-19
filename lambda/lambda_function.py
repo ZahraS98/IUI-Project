@@ -69,100 +69,27 @@ genres = ["action", "party", "multiplayer", "sports", "simulator", "strategy", "
           "adventure", "battle-royale", "survival", "stealth", "platformer", "fighting", "real-time-strategy",
           "role-play", "shooter"]
 
-
 skill_name = "game finder"
-help_text = ("Plese tell me your favourite video game genres. You can say "
-            "I really enjoy shooters")
+help_text = ("Please tell me your favourite video game genres. You can say "
+             "I really enjoy shooters")
 
 
-@sb.request_handler(can_handle_func=is_request_type("LaunchRequest"))
-def launch_request_handler(handler_input):
+class LaunchRequestHandler(AbstractRequestHandler):
     """Handler for Skill Launch."""
-    # type: (HandlerInput) -> Response
-    speech = "Welcome to g. g. easy, the alexa video game recommender, to help you and your friends find a video game that you all like to play."
-
-    handler_input.response_builder.speak(
-        speech + " " + help_text).ask(help_text)
-    
-    return handler_input.response_builder.response
-
-@sb.request_handler(can_handle_func=is_request_type("GiveGenreDefinitionIntent"))
-def give_genre_definition_handler(handler_input):
-    """Handler for Explain Game Type Intent."""
-    slots = handler_input.request_envelope.request.intent.slots
-
-    if "game type" in slots:
-        type = slots["game type"].value
-        speak_output = genre_explanation.get(type)
-        repromt = ("You can ask me about other video game genres you don't know about by saying""Please tell me more about r. p. g. for example ")
-    else:
-        samples = list(random.sample(genres, 2))
-        speak_output = "I'm not sure I know about this genre. For example I can give you definitions about {} and {} games".format(samples[0], samples[1])
-        repromt = "I'm not sure I know about this genre. You can ask me about a genre by saying please explain the action genre for example"
-    
-    handler_input.response_builder.speak(speak_output).ask(repromt)    
-    return handler_input.response_builder.response
-
-@sb.request_handler(can_handle_func=is_request_type("HelloWorldIntent")):
-    """Handler for Hello World Intent."""
-def hello_world_handler(handler_input):
-        # type: (HandlerInput) -> Response
-    speak_output = "Hello World!"
-    
-    handler_input.response_builder.speak(speak_output)
-
-    return handler_input.response_builder.response
-
-
-class NeedGameIntentHandler(AbstractRequestHandler):
-    """Handler for Need Game Intent."""
 
     def can_handle(self, handler_input):
         # type: (HandlerInput) -> bool
-        return ask_utils.is_intent_name("NeedGameIntent")(handler_input)
 
-    def supports_apl(self, handler_input):
-        # Checks whether APL is supported by the User's device
-        supported_interfaces = get_supported_interfaces(
-            handler_input)
-        return supported_interfaces.alexa_presentation_apl != None
-
-    def launch_screen(self, handler_input):
-        # Only add APL directive if User's device supports APL
-        if self.supports_apl(handler_input):
-            handler_input.response_builder.add_directive(
-                RenderDocumentDirective(
-                    token=APL_DOCUMENT_TOKEN,
-                    document={
-                        "type": "Link",
-                        "src": f"doc://alexa/apl/documents/{APL_DOCUMENT_ID}"
-                    },
-                    datasources=DATASOURCE
-                )
-            )
+        return ask_utils.is_request_type("LaunchRequest")(handler_input)
 
     def handle(self, handler_input):
         # type: (HandlerInput) -> Response
-        speak_output = "Of course. Here are some videos to help you choose."
+        speech = "Welcome to g. g. easy, the alexa video game recommender, to help you and your friends find a video game that you all like to play."
 
-        self.launch_screen(handler_input)
-        # return handler_input.response_builder.response
+        handler_input.response_builder.speak(
+            speech + " " + help_text).ask(help_text)
 
-        """
-        # then make a url variable
-        url = "https://www.geeksforgeeks.org"
-        # then call the default open method described above
-        print(url)
-        webbrowser.open(url)
-        """
-
-        return (
-
-            handler_input.response_builder
-            .speak(speak_output)
-            # .ask("add a reprompt if you want to keep the session open for the user to respond")
-            .response
-        )
+        return handler_input.response_builder.response
 
 
 class HelpIntentHandler(AbstractRequestHandler):
@@ -234,6 +161,84 @@ class SessionEndedRequestHandler(AbstractRequestHandler):
         return handler_input.response_builder.response
 
 
+class GiveGenreDefinitionIntentHandler(AbstractRequestHandler):
+
+    def can_handle(self, handler_input):
+        # type: (HandlerInput) -> bool
+
+        return ask_utils.is_request_type("GiveGenreDefinitionIntent")(handler_input)
+
+    def handle(self, handler_input):
+
+        slots = handler_input.request_envelope.request.intent.slots
+
+        if "game type" in slots:
+            type = slots["game type"].value
+            speak_output = genre_explanation.get(type)
+            repromt = (
+                "You can ask me about other video game genres you don't know about by saying""Please tell me more about r. p. g. for example ")
+        else:
+            samples = list(random.sample(genres, 2))
+            speak_output = "I'm not sure I know about this genre. For example I can give you definitions about {} and {} games".format(
+                samples[0], samples[1])
+            repromt = "I'm not sure I know about this genre. You can ask me about a genre by saying please explain the action genre for example"
+
+        handler_input.response_builder.speak(speak_output).ask(repromt)
+
+        return handler_input.response_builder.response
+
+
+class NeedGameIntentHandler(AbstractRequestHandler):
+    """Handler for Need Game Intent."""
+
+    def can_handle(self, handler_input):
+        # type: (HandlerInput) -> bool
+        return ask_utils.is_intent_name("NeedGameIntent")(handler_input)
+
+    def supports_apl(self, handler_input):
+        # Checks whether APL is supported by the User's device
+        supported_interfaces = get_supported_interfaces(
+            handler_input)
+        return supported_interfaces.alexa_presentation_apl != None
+
+    def launch_screen(self, handler_input):
+        # Only add APL directive if User's device supports APL
+        if self.supports_apl(handler_input):
+            handler_input.response_builder.add_directive(
+                RenderDocumentDirective(
+                    token=APL_DOCUMENT_TOKEN,
+                    document={
+                        "type": "Link",
+                        "src": f"doc://alexa/apl/documents/{APL_DOCUMENT_ID}"
+                    },
+                    datasources=DATASOURCE
+                )
+            )
+
+    def handle(self, handler_input):
+        # type: (HandlerInput) -> Response
+        speak_output = "Of course. Here are some videos to help you choose."
+
+        self.launch_screen(handler_input)
+        # return handler_input.response_builder.response
+
+        """
+        # then make a url variable
+        url = "https://www.geeksforgeeks.org"
+        # then call the default open method described above
+        print(url)
+        webbrowser.open(url)
+        """
+
+        return (
+
+            handler_input.response_builder
+            .speak(speak_output)
+            # .ask("add a reprompt if you want to keep the session open for the user to respond")
+            .response
+        )
+
+
 class IntentReflectorHandler(AbstractRequestHandler):
     """The intent reflector is used for interaction model testing and debugging.
     It will simply repeat the intent the user said. You can create custom handlers
@@ -289,13 +294,12 @@ class CatchAllExceptionHandler(AbstractExceptionHandler):
 sb = SkillBuilder()
 
 sb.add_request_handler(LaunchRequestHandler())
-sb.add_request_handler(GiveGenreDefinitionIntentHandler())
-sb.add_request_handler(HelloWorldIntentHandler())
-sb.add_request_handler(NeedGameIntentHandler())
 sb.add_request_handler(HelpIntentHandler())
 sb.add_request_handler(CancelOrStopIntentHandler())
 sb.add_request_handler(FallbackIntentHandler())
 sb.add_request_handler(SessionEndedRequestHandler())
+sb.add_request_handler(GiveGenreDefinitionIntentHandler())
+sb.add_request_handler(NeedGameIntentHandler())
 sb.add_request_handler(
     IntentReflectorHandler())  # make sure IntentReflectorHandler is last so it doesn't override your custom intent handlers
 
