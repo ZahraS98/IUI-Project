@@ -4,7 +4,7 @@
 # Please visit https://alexa.design/cookbook for additional examples on implementing slots, dialog management,
 # session persistence, api calls, and more.
 # This sample is built using the handler classes approach in skill builder.
-import logging
+"""import logging
 import random
 
 import ask_sdk_core.utils as ask_utils
@@ -13,33 +13,42 @@ from ask_sdk_core.dispatch_components import AbstractExceptionHandler
 from ask_sdk_core.handler_input import HandlerInput
 from ask_sdk_core.utils import is_intent_name, get_supported_interfaces, is_request_type
 from ask_sdk_core.skill_builder import SkillBuilder
-from ask_sdk_model.interfaces.alexa.presentation.apl import RenderDocumentDirective
+from ask_sdk_model.interfaces.alexa.presentation.apl import RenderDocumentDirective"""
 
-from ask_sdk_model import Response
-
+import logging
+import random
 import webbrowser
 
-logger = logging.getLogger(__name__)
-logger.setLevel(logging.INFO)
+import ask_sdk_core.utils as ask_utils
+from ask_sdk_core.skill_builder import SkillBuilder
+from ask_sdk_core.dispatch_components import AbstractRequestHandler
+from ask_sdk_core.dispatch_components import AbstractExceptionHandler
+from ask_sdk_core.handler_input import HandlerInput
+from ask_sdk_core.utils import get_supported_interfaces, is_intent_name, is_request_type
+from ask_sdk_core.skill_builder import SkillBuilder
+from ask_sdk_model.interfaces.alexa.presentation.apl import RenderDocumentDirective
+from ask_sdk_model import Response
 
-APL_DOCUMENT_ID = "video"
+APL_DOCUMENT_ID = "audiotest"
 
 APL_DOCUMENT_TOKEN = "documentToken"
 
 DATASOURCE = {
-    "simpleTextTemplateData": {
+    "audioPlayerTemplateData": {
         "type": "object",
         "properties": {
-            "backgroundImage": "https://d2o906d8ln7ui1.cloudfront.net/images/response_builder/background-green.png",
-            "foregroundImageLocation": "left",
-            "foregroundImageSource": "https://d2o906d8ln7ui1.cloudfront.net/images/response_builder/asparagus.jpeg",
-            "headerTitle": "Asparagus",
-            "headerSubtitle": "",
-            "hintText": "Try, \"Alexa, next question\"",
-            "headerAttributionImage": "https://d2o906d8ln7ui1.cloudfront.net/images/response_builder/logo-world-of-plants-2.png",
-            "primaryText": "Asparagus is a member of the Lily family. Plants in the lily family have evolved a close relationship with pollinators. Therefore, they typically have elaborate blooms. Asparagus is a member of the Lily family. Plants in the lily family have evolved a close relationship with pollinators. Therefore, they typically have elaborate blooms. Asparagus is a member of the Lily family. Plants in the lily family have evolved a close relationship with pollinators. Therefore, they typically have elaborate blooms. Asparagus is a member of the Lily family. Plants in the lily family have evolved a close relationship with pollinators. Therefore, they typically have elaborate blooms. ",
-            "textAlignment": "start",
-            "titleText": "your mom's a hoe"
+            "audioControlType": "jump30",
+            "audioSources": [
+                "https://d2o906d8ln7ui1.cloudfront.net/images/response_builder/Summer-Flower.wav",
+                "https://d2o906d8ln7ui1.cloudfront.net/images/response_builder/Wall-Flowers-and-Roses.wav"
+            ],
+            "backgroundImage": "https://d2o906d8ln7ui1.cloudfront.net/images/response_builder/background-rose.png",
+            "coverImageSource": "https://d2o906d8ln7ui1.cloudfront.net/images/response_builder/card-rose.jpeg",
+            "headerTitle": "My favorite flower songs",
+            "logoUrl": "https://d2o906d8ln7ui1.cloudfront.net/images/response_builder/logo-world-of-plants-2.png",
+            "primaryText": "Roses",
+            "secondaryText": "My favourite album",
+            "sliderType": "determinate"
         }
     }
 }
@@ -69,10 +78,6 @@ genres = ["action", "party", "multiplayer", "sports", "simulator", "strategy", "
           "adventure", "battle-royale", "survival", "stealth", "platformer", "fighting", "real-time-strategy",
           "role-play", "shooter"]
 
-skill_name = "game finder"
-help_text = ("Please tell me your favourite video game genres. You can say "
-             "I really enjoy shooters")
-
 
 class LaunchRequestHandler(AbstractRequestHandler):
     """Handler for Skill Launch."""
@@ -84,12 +89,143 @@ class LaunchRequestHandler(AbstractRequestHandler):
 
     def handle(self, handler_input):
         # type: (HandlerInput) -> Response
-        speech = "Welcome to g. g. easy, the alexa video game recommender, to help you and your friends find a video game that you all like to play."
+        speak_output = "Welcome to gg easy, the alexa video game recommender, to help you and your friends find a video game that you all like to play."
 
-        handler_input.response_builder.speak(
-            speech + " " + help_text).ask(help_text)
+        return (
+            handler_input.response_builder
+            .speak(speak_output)
+            .ask(speak_output)
+            .response
+        )
 
-        return handler_input.response_builder.response
+
+class GiveGenreDefinitionIntentHandler(AbstractRequestHandler):
+    """Handler for Give Genre Definition Intent."""
+
+    def can_handle(self, handler_input):
+        # type: (HandlerInput) -> bool
+        return ask_utils.is_intent_name("GiveGenreDefinitionIntent")(handler_input)
+
+    def handle(self, handler_input):
+        # type: (HandlerInput) -> Response
+        slots = handler_input.request_envelope.request.intent.slots
+
+        if "game_type" in slots:
+            type = slots["game_type"].value
+            speak_output = genre_explanation.get(type)
+            repromt = (
+                "You can ask me about other video game genres you don't know about by saying. ""Please tell me more about r. p. g. for example ")
+
+        else:
+            samples = list(random.sample(genres, 2))
+            speak_output = "I'm not sure I know about this genre. For example I can give you definitions about {} and {} games".format(
+                samples[0], samples[1])
+            repromt = "I'm not sure I know about this genre. You can ask me about different genres by saying please explain the action genre for example"
+
+        return (
+            handler_input.response_builder
+            .speak(speak_output)
+            .ask(repromt)
+            .response
+        )
+
+
+class NeedGameIntentHandler(AbstractRequestHandler):
+    """Handler for Need Game Intent."""
+
+    def can_handle(self, handler_input):
+        # type: (HandlerInput) -> bool
+        return ask_utils.is_intent_name("NeedGameIntent")(handler_input)
+
+    def supports_apl(self, handler_input):
+        # Checks whether APL is supported by the User's device
+        supported_interfaces = get_supported_interfaces(
+            handler_input)
+        return supported_interfaces.alexa_presentation_apl != None
+
+    def launch_screen(self, handler_input):
+        # Only add APL directive if User's device supports APL
+        if self.supports_apl(handler_input):
+            """
+            DATASOURCE = {
+                "videoPlayerTemplateData": {
+                    "type": "object",
+                    "properties": {
+                        "backgroundImage": "https://d2o906d8ln7ui1.cloudfront.net/images/response_builder/background-green.png",
+                        "displayFullscreen": false,
+                        "headerTitle": "Trailer 1",
+                        "headerSubtitle": "",
+                        "logoUrl": "",
+                        "videoControlType": "none",
+                        "videoSources": [
+                            "https://www.youtube.com/watch?v=uyN17fUYqeQ",
+                            "https://www.youtube.com/watch?v=Lda6bflnW38"
+                        ],
+                        "sliderType": "determinate"
+                    }
+                }
+            }"""
+
+            handler_input.response_builder.add_directive(
+                RenderDocumentDirective(
+                    token=APL_DOCUMENT_TOKEN,
+                    document={
+                        "type": "Link",
+                        "src": f"doc://alexa/apl/documents/{APL_DOCUMENT_ID}"
+                    },
+                    datasources=DATASOURCE
+                )
+            )
+
+    def handle(self, handler_input):
+        # type: (HandlerInput) -> Response
+        speak_output = "Of course. Here are some videos to help you choose."
+
+        self.launch_screen(handler_input)
+        # return handler_input.response_builder.response
+
+        """
+        # then make a url variable
+        url = "https://www.geeksforgeeks.org"
+        # then call the default open method described above
+        print(url)
+        webbrowser.open(url)
+        """
+
+        return (
+
+            handler_input.response_builder
+            .speak(speak_output)
+            # .ask("add a reprompt if you want to keep the session open for the user to respond")
+            .response
+        )
+
+
+class GiveExampleIntentHandler(AbstractRequestHandler):
+    """Handler for Give Genre Definition Intent."""
+
+    def can_handle(self, handler_input):
+        # type: (HandlerInput) -> bool
+        return ask_utils.is_intent_name("GiveExampleIntent")(handler_input)
+
+    def handle(self, handler_input):
+        # type: (HandlerInput) -> Response
+        slots = handler_input.request_envelope.request.intent.slots.genre_type.value
+
+        samples = list(random.sample(genres, 3))
+        speak_output = "Some of the video game genres I know of are {}, {} and {}".format(samples[0], samples[1],
+                                                                                          samples[2])
+        repromt = ("I know for example about the {} and {} video game genres. "
+                   "You can ask me more about these by saying, please explain the {} genre to me".format(samples[0],
+                                                                                                         samples[1],
+                                                                                                         samples[2]))
+
+        return (
+            handler_input.response_builder
+            .speak(speak_output)
+            .ask(repromt)
+            .response
+        )
 
 
 class HelpIntentHandler(AbstractRequestHandler):
@@ -101,7 +237,8 @@ class HelpIntentHandler(AbstractRequestHandler):
 
     def handle(self, handler_input):
         # type: (HandlerInput) -> Response
-        speak_output = "What do you need help with?"
+        speak_output = ("I am the alexa video game recommender. I can help you find a video game that you like "
+                        "by saying I like shooters for example")
 
         return (
             handler_input.response_builder
@@ -140,7 +277,9 @@ class FallbackIntentHandler(AbstractRequestHandler):
     def handle(self, handler_input):
         # type: (HandlerInput) -> Response
         logger.info("In FallbackIntentHandler")
-        speech = "Hmm, I'm not sure. You can say Hello or Help. What would you like to do?"
+        speech = ("Hmm, I'm not sure. You ask for help by saying help. "
+                  "You can tell me your favourite video game genres by saying I enjoy horror games for example "
+                  "You can ask me about different genres by saying explain the action genre for example")
         reprompt = "I didn't catch that. What can I help you with?"
 
         return handler_input.response_builder.speak(speech).ask(reprompt).response
@@ -159,84 +298,6 @@ class SessionEndedRequestHandler(AbstractRequestHandler):
         # Any cleanup logic goes here.
 
         return handler_input.response_builder.response
-
-
-class GiveGenreDefinitionIntentHandler(AbstractRequestHandler):
-
-    def can_handle(self, handler_input):
-        # type: (HandlerInput) -> bool
-
-        return ask_utils.is_request_type("GiveGenreDefinitionIntent")(handler_input)
-
-    def handle(self, handler_input):
-
-        slots = handler_input.request_envelope.request.intent.slots
-
-        if "game type" in slots:
-            type = slots["game type"].value
-            speak_output = genre_explanation.get(type)
-            repromt = (
-                "You can ask me about other video game genres you don't know about by saying""Please tell me more about r. p. g. for example ")
-        else:
-            samples = list(random.sample(genres, 2))
-            speak_output = "I'm not sure I know about this genre. For example I can give you definitions about {} and {} games".format(
-                samples[0], samples[1])
-            repromt = "I'm not sure I know about this genre. You can ask me about a genre by saying please explain the action genre for example"
-
-        handler_input.response_builder.speak(speak_output).ask(repromt)
-
-        return handler_input.response_builder.response
-
-
-class NeedGameIntentHandler(AbstractRequestHandler):
-    """Handler for Need Game Intent."""
-
-    def can_handle(self, handler_input):
-        # type: (HandlerInput) -> bool
-        return ask_utils.is_intent_name("NeedGameIntent")(handler_input)
-
-    def supports_apl(self, handler_input):
-        # Checks whether APL is supported by the User's device
-        supported_interfaces = get_supported_interfaces(
-            handler_input)
-        return supported_interfaces.alexa_presentation_apl != None
-
-    def launch_screen(self, handler_input):
-        # Only add APL directive if User's device supports APL
-        if self.supports_apl(handler_input):
-            handler_input.response_builder.add_directive(
-                RenderDocumentDirective(
-                    token=APL_DOCUMENT_TOKEN,
-                    document={
-                        "type": "Link",
-                        "src": f"doc://alexa/apl/documents/{APL_DOCUMENT_ID}"
-                    },
-                    datasources=DATASOURCE
-                )
-            )
-
-    def handle(self, handler_input):
-        # type: (HandlerInput) -> Response
-        speak_output = "Of course. Here are some videos to help you choose."
-
-        self.launch_screen(handler_input)
-        # return handler_input.response_builder.response
-
-        """
-        # then make a url variable
-        url = "https://www.geeksforgeeks.org"
-        # then call the default open method described above
-        print(url)
-        webbrowser.open(url)
-        """
-
-        return (
-
-            handler_input.response_builder
-            .speak(speak_output)
-            # .ask("add a reprompt if you want to keep the session open for the user to respond")
-            .response
-        )
 
 
 class IntentReflectorHandler(AbstractRequestHandler):
@@ -294,14 +355,15 @@ class CatchAllExceptionHandler(AbstractExceptionHandler):
 sb = SkillBuilder()
 
 sb.add_request_handler(LaunchRequestHandler())
+sb.add_request_handler(GiveGenreDefinitionIntentHandler())
+sb.add_request_handler(NeedGameIntentHandler())
+sb.add_request_handler(GiveExampleIntentHandler())
 sb.add_request_handler(HelpIntentHandler())
 sb.add_request_handler(CancelOrStopIntentHandler())
 sb.add_request_handler(FallbackIntentHandler())
 sb.add_request_handler(SessionEndedRequestHandler())
-sb.add_request_handler(GiveGenreDefinitionIntentHandler())
-sb.add_request_handler(NeedGameIntentHandler())
-sb.add_request_handler(
-    IntentReflectorHandler())  # make sure IntentReflectorHandler is last so it doesn't override your custom intent handlers
+sb.add_request_handler(IntentReflectorHandler())
+# make sure IntentReflectorHandler is last so it doesn't override your custom intent handlers
 
 sb.add_exception_handler(CatchAllExceptionHandler())
 
