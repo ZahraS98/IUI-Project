@@ -1,11 +1,11 @@
 import {StyleSheet, Text, View, Image} from 'react-native';
-import {AppBar} from "@react-native-material/core";
+import {AppBar, Box} from "@react-native-material/core";
 
 function Header() {
     return (
         <View style={styles.header}>
-            <Image styles={styles.logo} soruce={require('../assets/logo.png')}/>
-            <Text style={styles.text}>GEEZ</Text>
+            <Image styles={styles.logo} source={require('../assets/logo.png')}/>
+            <Text style={styles.text}>GGEEZ</Text>
         </View>
     )
 }
@@ -33,8 +33,10 @@ const styles = StyleSheet.create({
         alignSelf: "center",
     },
     logo: {
-        resizeMode: 'contain',
-        width: 20,
-        height: 20,
-    }
+        flex: 1,
+        borderWidth: 0.5,
+        borderRadius: 100,
+        width: 0.05,
+        height: 0.05,
+    },
 });
