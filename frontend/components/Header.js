@@ -1,13 +1,12 @@
 import {StyleSheet, Text, View, Image} from 'react-native';
-import {AppBar, Box} from "@react-native-material/core";
 
-function Header() {
+const Header = () => {
     return (
         <View style={styles.header}>
-            <Image styles={styles.logo} source={require('../assets/logo.png')}/>
+            <Image style={styles.logo} source={require("../assets/bot.png")} />
             <Text style={styles.text}>GGEEZ</Text>
         </View>
-    )
+    );
 }
 
 export default Header;
@@ -17,26 +16,30 @@ const styles = StyleSheet.create({
         flex: 1,
         flexDirection: 'row',
         justifyContent: 'flex-start',
-        borderWidth: 1,
+
+        borderWidth: StyleSheet.hairlineWidth,
         borderColor: '#792d86',
         backgroundColor: '#9c27b0',
-        width: '100%',
-        height: '35%',
+
+        marginTop: 20,
         paddingTop: 10,
-        paddingLeft: 10,
     },
     text: {
+        flex: 3,
         fontSize: 30,
         fontWeight: 'bold',
         color: 'white',
-        paddingLeft: 10,
-        alignSelf: "center",
+        paddingLeft: 10
+        ,
     },
     logo: {
         flex: 1,
-        borderWidth: 0.5,
-        borderRadius: 100,
-        width: 0.05,
-        height: 0.05,
+        borderRadius: 15,
+        width: 50,
+        height: 50,
+
+        marginLeft: 10,
     },
 });
+
+//<Image styles={styles.logo} source={require('../assets/logo.png')}/>

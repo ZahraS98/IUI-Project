@@ -1,31 +1,50 @@
-import {StyleSheet, Text, View} from 'react-native';
+import React from "react";
+import { View, Text, StyleSheet} from "react-native";
+import dayjs from "dayjs";
+import relativeTime from "dayjs/plugin/relativeTime";
+dayjs.extend(relativeTime)
 
-function Message(props) {
+const Message = ({message}) => {
+
+    const isMe = () => {
+        return message.user.id !== "bot";
+    }
+
     return (
-        <View key={props.key} style={styles.botMessage}>
-            <Text style={styles.messageText}>
-                {props.text}
-            </Text>
+        <View style={[styles.container,
+            {
+                backgroundColor: isMe() ? "#e0aaff" : "white",
+                alignSelf: isMe() ? "flex-end" : "flex-start",
+        }]}>
+            <Text>{message.text}</Text>
+            <Text style={styles.time}>{dayjs(message.createdAt).fromNow(true)}</Text>
         </View>
-    )
-}
-
-export default Message;
+    );
+};
 
 const styles = StyleSheet.create({
-    userMessage: {
-        margin: 8,
-        padding: 8,
-        borderRadius: 6,
-        backgroundColor: '#9c27b0',
-    },
-    botMessage: {
-        margin: 8,
-        padding: 8,
+    container: {
+        backgroundColor: "white",
+        alignSelf: "flex-start",
+        margin: 5,
+        padding: 10,
         borderRadius: 10,
-        backgroundColor: '#c579d2',
+        maxWidth: "80%",
+
+        shadowColor: "#000",
+        shadowOffset: {
+            width: 0,
+            height: 1,
+        },
+        shadowOpacity: 0.18,
+        shadowRadius: 1.0,
+
+        elevation: 1,
     },
-    messageText: {
-        color: 'white',
-    },
+    time: {
+        color: "gray",
+        alignSelf: "flex-end"
+    }
 })
+
+export default Message;
