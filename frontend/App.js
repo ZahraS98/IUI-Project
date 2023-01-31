@@ -2,9 +2,7 @@ import {StatusBar} from 'expo-status-bar';
 import {StyleSheet, View, FlatList, Image} from 'react-native';
 import React from 'react';
 import Header from "./components/Header";
-import MicButton from "./components/micButton";
 import Chat from "./components/Chat";
-import ChatInput from "./components/ChatInput";
 
 export default function App() {
 

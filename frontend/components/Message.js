@@ -4,10 +4,10 @@ import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 dayjs.extend(relativeTime)
 
-const Message = ({message}) => {
+const Message = ({item}) => {
 
     const isMe = () => {
-        return message.user.id !== "bot";
+        return item.user.id !== "bot";
     }
 
     return (
@@ -16,8 +16,8 @@ const Message = ({message}) => {
                 backgroundColor: isMe() ? "#e0aaff" : "white",
                 alignSelf: isMe() ? "flex-end" : "flex-start",
         }]}>
-            <Text>{message.text}</Text>
-            <Text style={styles.time}>{dayjs(message.createdAt).fromNow(true)}</Text>
+            <Text>{item.text}</Text>
+            <Text style={styles.time}>{dayjs(item.createdAt).fromNow(true)}</Text>
         </View>
     );
 };

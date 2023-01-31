@@ -14,7 +14,7 @@ const Chat = () => {
             <ImageBackground source={require('../assets/background.png')} style={styles.imageBackground}>
                 <FlatList
                     data={messages}
-                    renderItem={({item}) => <Message message={item}/>}
+                    renderItem={({item}) => <Message item={item}/>}
                     style={styles.list}
                     inverted>
                 </FlatList>
