@@ -1,37 +1,80 @@
-import {ImageBackground, StyleSheet, FlatList, KeyboardAvoidingView, Platform} from 'react-native';
-import Message from './Message';
-import messages from '../assets/data/messages.json'
-import ChatInput from "./ChatInput";
+const {useState} = require("react");
+const {ImageBackground, StyleSheet, View, SafeAreaView} = require("react-native");
+const {GiftedChat} = require("react-native-gifted-chat");
 
-
-const Chat = () => {
-    return (
-        <KeyboardAvoidingView
-            behavior={Platform.OS === "ios" ? "padding" : "height"}
-            keyboardVerticalOffset={Platform.OS === "ios" ? 10 : 80}
-            style={styles.imageBackground}
-        >
-            <ImageBackground source={require('../assets/background.png')} style={styles.imageBackground}>
-                <FlatList
-                    data={messages}
-                    renderItem={({item}) => <Message item={item}/>}
-                    style={styles.list}
-                    inverted>
-                </FlatList>
-                <ChatInput/>
-            </ImageBackground>
-        </KeyboardAvoidingView>
-    );
+const ggeez = require('../assets/bot.png');
+const BOT = {
+    _id: 2,
+    name: 'Bot',
+    avatar: ggeez,
 };
 
+const Chat = () => {
+
+    const [state, setState] = useState({
+        messages: [{
+            _id: 1,
+            text: "Hello, I'm GGEEZ, here to help you find a video game that you like",
+            createdAt: new Date(),
+            user: BOT,
+        },],
+        id: 1,
+        name: ''
+    });
+
+    function handleServerResponse(response) {
+        let text = response //text;
+
+        sendBotResponse(text);
+    }
+
+    // to use in handle Server response
+    function sendBotResponse(text) {
+        let msg = {
+            _id: state.messages.length + 1,
+            text,
+            createdAt: new Date(),
+            user: BOT,
+        };
+
+        setState((prevState) => {
+            messages: GiftedChat.append(prevState.messages, [msg])
+        });
+    };
+
+    function onSend(messages = []) {
+        setState(prevState => ({
+            messages: GiftedChat.append(prevState.messages, messages)
+        }));
+
+        //just send text to server
+        let message = messages[0].text;
+
+        //send message to server
+    };
+
+    return (
+        <SafeAreaView style={styles.background}>
+            <ImageBackground source={require('../assets/background.png')} style={styles.background}>
+                <GiftedChat
+                    messages={state.messages}
+                    onSend={(message) => onSend(message)}
+                    showAvatarForEveryMessage={true}
+                    user={{_id: 1}}
+                />
+            </ImageBackground>
+        </SafeAreaView>
+    );
+}
+
+export default Chat;
+
 const styles = StyleSheet.create({
-    imageBackground: {
+    background: {
         flex: 1,
-    },
-    list: {
-        marginTop: 5,
-        padding: 10,
+        height: "100%",
+        width: "100%",
     }
 });
 
-export default Chat;
+//<ImageBackground source={require('../assets/background.png')} style={styles.background}>
