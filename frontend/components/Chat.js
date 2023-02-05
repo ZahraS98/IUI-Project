@@ -1,18 +1,12 @@
-const {Audio, Video} = require("expo-av");
-const {useRef, useState, React} = require("react");
-const {ImageBackground, StyleSheet, SafeAreaView, View} = require("react-native");
+const {Audio} = require("expo-av");
+const {useState, React} = require("react");
+const {ImageBackground, StyleSheet, SafeAreaView, View, Pressable} = require("react-native");
 const {GiftedChat, Send} = require("react-native-gifted-chat");
-const {MaterialCommunityIcons} = require("@expo/vector-icons");
-import {Pressable} from "react-native";
-import {FontAwesome} from "@expo/vector-icons";
+const {MaterialCommunityIcons, FontAwesome} = require("@expo/vector-icons");
 
-const user = require('../assets/user.png');
-const ggeez = require('../assets/bot.png');
-const BOT = {
-    _id: 2,
-    name: 'Bot',
-    avatar: ggeez,
-};
+const {Video} = require("./Video");
+const ME = require("./ME");
+const BOT = require("./BOT");
 
 const Chat = () => {
 
@@ -46,20 +40,38 @@ const Chat = () => {
             video: "",
         };
 
-        setState((prevState) => {
+        setState((prevState) => ({
             messages: GiftedChat.append(prevState.messages, [msg])
-        });
+        }));
     }
 
+    // send Text to server and display it on screen
     function onSend(messages = []) {
-        setState(prevState => {
+        setState(prevState => ({
             messages: GiftedChat.append(prevState.messages, messages)
-        });
+        }));
 
         //just send text to server
-        let message = messages[0].text;
-
+        let messageText = messages[0].text;
         //send message to server
+        fetch("/add", {
+            method: "POST",
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({text: messageText})
+        }).then(response => {
+            console.log(response.status);
+            console.log(response.headers);
+            return response.json();
+        }).then(
+            (result) => {
+                console.log(result);
+            },
+            (error) => {
+                console.log(error);
+            }
+        );
     }
 
     const customSend = props => {
@@ -72,69 +84,105 @@ const Chat = () => {
         )
     }
 
-    // ####################### Recorder ############################
+    // ###############################  Recorder  ##############################
 
-    const recorder = props => {
+    const [recording, setRecording] = useState();
+    const [recordings, setRecordings] = useState([]);
+    async function startRecording() {
+        try {
+            console.log('Requesting permissions..');
+            const permission = await Audio.requestPermissionsAsync();
 
-        const [recording, setRecording] = useState();
-        const [recordings, setRecordings] = useState([]);
+            if (permission.granted) {
+                await Audio.setAudioModeAsync({
+                    allowsRecordingIOS: true,
+                    playsInSilentModeIOS: true,
+                    allowsRecordingAndroid: true,
+                    playInSilentModeAndroid: true,
 
-        async function startRecording() {
-            try {
-                console.log('Requesting permissions..');
-                const permission = await Audio.requestPermissionsAsync();
+                });
 
-                if (permission.granted) {
-                    await Audio.setAudioModeAsync({
-                        allowsRecordingIOS: true,
-                        playsInSilentModeIOS: true,
-                        allowsRecordingAndroid: true,
-                        playInSilentModeAndroid: true,
+                console.log('Starting recording..');
+                const {recording} = await Audio.Recording.createAsync(
+                    Audio.RecordingOptionsPresets.HIGH_QUALITY
+                );
 
-                    });
-
-                    console.log('Starting recording..');
-                    const {recording} = await Audio.Recording.createAsync(
-                        Audio.RecordingOptionsPresets.HIGH_QUALITY
-                    );
-
-                    setRecording(recording);
-                    console.log('Recording started');
-                } else {
-                    sendBotResponse("Please grant permission to app to access the microphone");
-                }
-            } catch (error) {
-                console.log("Failed to start recording: ", error);
+                setRecording(recording);
+                console.log('Recording started');
+            } else {
+                sendBotResponse("Please grant permission to app to access the microphone");
             }
+        } catch (error) {
+            console.log("Failed to start recording: ", error);
         }
+    }
 
-        async function stopRecording() {
-            console.log('Stopping recording..');
-            setRecording(undefined);
-            await recording.stopAndUnloadAsync();
+    function sendAudio(file) {
 
-            let updateRecordings = [...recordings];
-            const {sound, status} = await recording.createNewLoadedSoundAsync();
-            updateRecordings.push({
-                sound: sound,
-                duration: getDurationFormatted(status.durationMillis),
-                file: recording.getURI()
-            });
+        let msg = {
+            _id: state.messages.length + 1,
+            text: "",
+            createdAt: new Date(),
+            user: ME,
+            audio: file,
+            video: "",
+        };
 
-            setRecordings(updateRecordings);
+        setState((prevState) => ({
+            messages: GiftedChat.append(prevState.messages, [msg])
+        }));
 
-            const uri = recording.getURI();
-            console.log('Recording stopped and stored at', uri);
-        }
+        let messageAudio = msg.audio;
+        //send message to server
+        fetch("http://127.0.0.1:5000/input", {
+            method: "POST",
+            body: JSON.stringify({inputFile: messageAudio}),
+            headers: {
+                'Content-Type': 'application/json'
+            },
+        }).then(response => {
+            console.log(response.status);
+            console.log(response.headers);
+            return response.json();
+        }).then(
+            (result) => {
+                console.log(result);
+            },
+            (error) => {
+                console.log(error);
+            }
+        );
+    }
 
-        function getDurationFormatted(millis) {
-            const minutes = millis / 1000 / 60;
-            const minutesDisplay = Math.floor(minutes);
-            const seconds = Math.round((minutes - minutesDisplay) * 60);
-            const secondsDisplay = seconds < 10 ? `0${seconds}` : seconds;
-            return `${minutesDisplay}:${secondsDisplay}`;
-        }
+    async function stopRecording() {
+        console.log('Stopping recording..');
+        setRecording(undefined);
+        await recording.stopAndUnloadAsync();
 
+        let updateRecordings = [...recordings];
+        const {sound, status} = await recording.createNewLoadedSoundAsync();
+        updateRecordings.push({
+            sound: sound,
+            duration: getDurationFormatted(status.durationMillis),
+            file: recording.getURI()
+        });
+
+        setRecordings(updateRecordings);
+
+        const uri = recording.getURI();
+        console.log('Recording stopped and stored at', uri);
+        sendAudio(uri);
+    }
+
+    function getDurationFormatted(millis) {
+        const minutes = millis / 1000 / 60;
+        const minutesDisplay = Math.floor(minutes);
+        const seconds = Math.round((minutes - minutesDisplay) * 60);
+        const secondsDisplay = seconds < 10 ? `0${seconds}` : seconds;
+        return `${minutesDisplay}:${secondsDisplay}`;
+    }
+
+    const recorder = () => {
         return (
             <View>
                 <Pressable
@@ -158,33 +206,31 @@ const Chat = () => {
                 </Pressable>
             </View>
         );
-    };
+    }
 
-    // ###############################  Video ##############################
 
-    const video = useRef(null);
-    const [status, setStatus] = useState({});
+// ###############################  Replay  ##############################
 
-    // ###############################  Chat  ##############################
+// ###############################  Video  ##############################
+
+
+// ###############################  Chat  ##############################
 
     return (
         <SafeAreaView style={styles.background}>
             <ImageBackground source={require('../assets/background.png')} style={styles.background}>
                 <GiftedChat
+                    renderMessageVideo={(props) => <Video props={props}/>}
                     messages={state.messages}
                     onSend={(message) => onSend(message)}
                     showUserAvatar={true}
                     showAvatarForEveryMessage={true}
-                    minInputToolbarHeight={70}
+                    minInputToolbarHeight={90}
                     multiline
                     alwaysShowSend={true}
                     renderSend={(props) => customSend(props)}
-                    renderActions={(props) => recorder(props)}
-                    user={{
-                        _id: 1,
-                        name: "Me",
-                        avatar: user,
-                    }}
+                    renderActions={() => recorder()}
+                    user={ME}
                 />
             </ImageBackground>
         </SafeAreaView>
