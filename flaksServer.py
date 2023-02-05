@@ -127,7 +127,7 @@ def identify_slot(input):
 
 
 @app.route("/input", methods=['GET', 'POST'])
-def register():
+def AudioResponse():
 
     input_file = request.files['inputFile']
     fileType = "wav"
@@ -147,6 +147,14 @@ def register():
 
     for result in response.results:
         apiResponse = identify_slot(format(result.alternatives[0].transcript))
+
+    return apiResponse
+
+@app.route("/textinput", methods=['GET', 'POST'])
+def textResponse():
+
+    input_text = request.args.get("input")
+    apiResponse = identify_slot(input_text)
 
     return apiResponse
 
