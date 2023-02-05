@@ -7,7 +7,7 @@ GGEEZ is a tool to help you choose a video game.
 ## Installations
 
 Needs [`node`](https://nodejs.org/en/), [`yarn`](https://classic.yarnpkg.com/lang/en/docs/install/#debian-stable) and [`expo-cli`](https://expo.dev/tools) installed on machine. <br/>
-For `expo-cli` ==`sudo`== might be needed for installation  
+For `expo-cli` <mark>`sudo`</mark> might be needed for installation  
 
 ### For Running App on mobile Device
  
@@ -19,7 +19,7 @@ For `expo-cli` ==`sudo`== might be needed for installation
  - Open Android Studio 
  - From Android Studio Welcome screen, select **More Actions > Virtual Device Manager**
  - After opening a project, select **View > Tool Windows > Device Manager** from the main menu bar, and then click **Create device**
- - Be sure to check that during creation the column of **Play Store** ==shows== Play Store Icon
+ - Be sure to check that during creation the column of **Play Store** <mark>shows</mark> Play Store Icon
  - Configs for Device used to test:
    - Pixel 2 API 31
  - Make sure that same Android SDK is also installed on machine
@@ -31,10 +31,12 @@ For `expo-cli` ==`sudo`== might be needed for installation
 
 ## Usage
 
-- To start the ==local== expo server, type `npx expo start` in same directory as package.json file <br/>
+- To start the <mark>local</mark> expo server, type `npx expo start` in same directory as package.json file <br/>
    - To connect to official expo server, type `expo start` <br/>
-- For ADV: Start Emulator
-- Then enter `a` in same console-window, where you started your expo-server. It will install the Expo Go App on your ADV and start the App
-- For Device: Scan QR-Code and follow the link. It will open the app in your Expo Go App
+- For ADV: 
+  - Start Emulator
+  - Then enter `a` in same console-window, where you started your expo-server. It will install the Expo Go App on your ADV and start the App
+- For Device: 
+  - Scan QR-Code and follow the link. It will open the app in your Expo Go App
 
 ## Contributing
