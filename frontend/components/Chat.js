@@ -3,10 +3,21 @@ const {useState, React} = require("react");
 const {ImageBackground, StyleSheet, SafeAreaView, View, Pressable} = require("react-native");
 const {GiftedChat, Send} = require("react-native-gifted-chat");
 const {MaterialCommunityIcons, FontAwesome} = require("@expo/vector-icons");
-
 const {Video} = require("./Video");
-const ME = require("./ME");
-const BOT = require("./BOT");
+
+const ggeez = require('../assets/bot.png');
+const BOT = {
+    _id: 2,
+    name: "Bot",
+    avatar: ggeez,
+};
+
+const user = require('../assets/user.png');
+const ME = {
+    _id: 1,
+    name: "Me",
+    avatar: user,
+}
 
 const Chat = () => {
 
@@ -45,33 +56,39 @@ const Chat = () => {
         }));
     }
 
+    function sendMessageToServer(text) {
+
+        const requestOptions = {
+            method: "POST",
+            headers: {"content-type": "application/json"},
+            body: JSON.stringify({text: text})
+        }
+
+        fetch("http://192.168.2.143:3000/textinput", requestOptions)
+            .then(response => {
+                console.log(response.status);
+                console.log(response.headers);
+                return response.json();
+            })
+            .then(data => {
+                console.log(data.toString());
+                sendBotResponse(data);
+            })
+            .catch(error => {
+                console.log(error);
+            }
+        );
+
+    }
+
     // send Text to server and display it on screen
     function onSend(messages = []) {
         setState(prevState => ({
             messages: GiftedChat.append(prevState.messages, messages)
         }));
 
-        //just send text to server
         let messageText = messages[0].text;
-        //send message to server
-        fetch("/add", {
-            method: "POST",
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({text: messageText})
-        }).then(response => {
-            console.log(response.status);
-            console.log(response.headers);
-            return response.json();
-        }).then(
-            (result) => {
-                console.log(result);
-            },
-            (error) => {
-                console.log(error);
-            }
-        );
+        sendMessageToServer(messageText);
     }
 
     const customSend = props => {
@@ -88,6 +105,7 @@ const Chat = () => {
 
     const [recording, setRecording] = useState();
     const [recordings, setRecordings] = useState([]);
+
     async function startRecording() {
         try {
             console.log('Requesting permissions..');
@@ -134,11 +152,11 @@ const Chat = () => {
 
         let messageAudio = msg.audio;
         //send message to server
-        fetch("http://127.0.0.1:5000/input", {
+        fetch("http://192.168.2.143:5000/input", {
             method: "POST",
-            body: JSON.stringify({inputFile: messageAudio}),
+            body: {inputFile: messageAudio},
             headers: {
-                'Content-Type': 'application/json'
+                "Content-Type": "text/html; charset=utf-8"
             },
         }).then(response => {
             console.log(response.status);
@@ -208,10 +226,7 @@ const Chat = () => {
         );
     }
 
-
-// ###############################  Replay  ##############################
-
-// ###############################  Video  ##############################
+    // ###############################  Video  ##############################
 
 
 // ###############################  Chat  ##############################
@@ -226,7 +241,6 @@ const Chat = () => {
                     showUserAvatar={true}
                     showAvatarForEveryMessage={true}
                     minInputToolbarHeight={90}
-                    multiline
                     alwaysShowSend={true}
                     renderSend={(props) => customSend(props)}
                     renderActions={() => recorder()}
