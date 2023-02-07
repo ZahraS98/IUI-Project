@@ -4,7 +4,10 @@ import io
 import os
 
 import spacy
-from flask import Flask, request
+from flask import Flask, request, jsonify, render_template
+import json
+from pydub import AudioSegment
+
 from google.cloud import speech
 
 sp = spacy.load('en_core_web_sm')
@@ -13,7 +16,10 @@ os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "/home/pierre/key.json"
 
 RATE = 44100
 
-app = Flask(__name__)
+app = Flask(
+    __name__,
+    template_folder="./templates",
+)
 
 language_code = "en-US"
 
@@ -27,6 +33,9 @@ config = speech.RecognitionConfig(
 streaming_config = speech.StreamingRecognitionConfig(
     config=config, interim_results=True
 )
+
+chat = []
+files = []
 
 slot_game_type_dictionary = {}
 
@@ -109,6 +118,7 @@ def identify_slot(input):
 
         elif actikon != "":
             """
+
             if word.pos_ == "PUNCT":
                 objet = objet[:-1]
                 print("<" + actikon + "," + objet + ">")
@@ -125,43 +135,69 @@ def identify_slot(input):
     return slots
 
 
+@app.route("/")
+def hello():
+    return render_template("index.html")
 
-@app.route("/input", methods=['GET', 'POST'])
-def AudioResponse():
 
-    input_file = request.files['inputFile']
-    fileType = "wav"
+@app.route("/input", methods=['POST'])
+def audioResponse():
+
+    input_file = json.loads(request.data)
+
+    if input_file is None:
+        return jsonify({"error": "Input is None"}), 404
+
+    fileType = "m4a"
     nfile_name = "inputFile." + fileType
     input_file.name = nfile_name
     input_file.save(os.path.join("input", input_file.filename))
-    os.rename("input/"+input_file.filename, "input/"+nfile_name)
+    os.rename("input/" + input_file.filename, "input/" + nfile_name)
 
-    with io.open(nfile_name, "rb") as audio_file:
+    m4a_filename = "input/" + nfile_name
+    wav_filename = r"input/inputFile.wav"
+    track = AudioSegment.from_file(m4a_filename,  format= 'm4a')
+    file_handle = track.export(wav_filename, format='wav')
+
+
+
+    with io.open(wav_filename, "rb") as audio_file:
         content = audio_file.read()
 
     audio = speech.RecognitionAudio(content=content)
 
     response = client.recognize(config=config, audio=audio)
 
-    global apiResponse
-
+    apiResponse = []
+    apiResponse.append(response.results)
     for result in response.results:
-        apiResponse = identify_slot(format(result.alternatives[0].transcript))
+        apiResponse.append(identify_slot(format(result.alternatives[0].transcript)))
 
-    return apiResponse
-
-@app.route("/textinput", methods=['GET', 'POST'])
-def textResponse():
-
-    input_text = request.args.get("input")
-    apiResponse = identify_slot(input_text)
-
-    return apiResponse
+    return jsonify(apiResponse), 201
 
 
-@app.route("/test")
+@app.route("/textinput", methods=["POST"])
+def text_response():
+    input_data = json.loads(request.data)
+
+    if input_data is None:
+        return jsonify({"error": "Input is None"}), 404
+
+    text = input_data["text"]
+    chat.append(text)
+    apiResponse = identify_slot(text)
+
+    return jsonify(apiResponse), 201
+
+
+@app.route("/textinput", methods=["GET"])
+def get_text():
+    return jsonify(chat)
+
+
+@app.route("/test", methods=["GET"])
 def test():
-    return "something"
+    return jsonify("something")
 
 
-app.run()
+app.run(host="192.168.2.143", port="3000")
