@@ -49,13 +49,7 @@ const Chat = () => {
                 user: BOT,
                 video: "",
             },
-            {
-                _id: 4,
-                text: "https://www.youtube.com/watch?v=hI7kbY40tcMs",
-                createdAt: new Date(),
-                user: BOT,
-                video: "",
-            },],
+        ],
         id: 1,
         name: ''
     });
@@ -156,7 +150,7 @@ const Chat = () => {
         }
     }
 
-   function sendAudio(file) {
+    function sendAudio(file) {
 
         let requestOptions = {
             method: "POST",
@@ -226,61 +220,61 @@ const Chat = () => {
     }
 
 
-function getDurationFormatted(millis) {
-    const minutes = millis / 1000 / 60;
-    const minutesDisplay = Math.floor(minutes);
-    const seconds = Math.round((minutes - minutesDisplay) * 60);
-    const secondsDisplay = seconds < 10 ? `0${seconds}` : seconds;
-    return `${minutesDisplay}:${secondsDisplay}`;
-}
+    function getDurationFormatted(millis) {
+        const minutes = millis / 1000 / 60;
+        const minutesDisplay = Math.floor(minutes);
+        const seconds = Math.round((minutes - minutesDisplay) * 60);
+        const secondsDisplay = seconds < 10 ? `0${seconds}` : seconds;
+        return `${minutesDisplay}:${secondsDisplay}`;
+    }
 
-const recorder = () => {
-    return (
-        <View>
-            <Pressable
-                onPressIn={startRecording}
-                onPressOut={stopRecording}
-                android_ripple={{
-                    color: '#dddddd',
-                    radius: 100
-                }}
-                hitSlop={{top: 5, bottom: 5, right: 5, left: 5}}
-                style={({pressed}) => [{
-                    backgroundColor: pressed ? "#9e9e9e" : "white",
-                    opacity: pressed ? 0.5 : 1,
-                },
-                    styles.button]}
-            >
-                <FontAwesome
-                    name="microphone"
-                    size={20}
-                    color={"#0e98f4"}/>
-            </Pressable>
-        </View>
-    );
-}
+    const recorder = () => {
+        return (
+            <View>
+                <Pressable
+                    onPressIn={startRecording}
+                    onPressOut={stopRecording}
+                    android_ripple={{
+                        color: '#dddddd',
+                        radius: 100
+                    }}
+                    hitSlop={{top: 5, bottom: 5, right: 5, left: 5}}
+                    style={({pressed}) => [{
+                        backgroundColor: pressed ? "#9e9e9e" : "white",
+                        opacity: pressed ? 0.5 : 1,
+                    },
+                        styles.button]}
+                >
+                    <FontAwesome
+                        name="microphone"
+                        size={20}
+                        color={"#0e98f4"}/>
+                </Pressable>
+            </View>
+        );
+    }
 
 // ###############################  Video  ##############################
 
 // ###############################  Chat  ##############################
 
-return (
-    <SafeAreaView style={styles.background}>
-        <ImageBackground source={require('../assets/background.png')} style={styles.background}>
-            <GiftedChat
-                messages={state.messages}
-                onSend={(message) => onSend(message)}
-                showUserAvatar={true} S
-                showAvatarForEveryMessage={true}
-                minInputToolbarHeight={90}
-                alwaysShowSend={true}
-                renderSend={(props) => customSend(props)}
-                renderActions={() => recorder()}
-                user={ME}
-            />
-        </ImageBackground>
-    </SafeAreaView>
-);
+    return (
+        <SafeAreaView style={styles.background}>
+            <ImageBackground source={require('../assets/background.png')} style={styles.background}>
+                <GiftedChat
+                    messages={state.messages}
+                    onSend={(message) => onSend(message)}
+                    showUserAvatar={true} S
+                    showAvatarForEveryMessage={true}
+                    minInputToolbarHeight={90}
+                    alwaysShowSend={true}
+                    renderSend={(props) => customSend(props)}
+                    renderActions={() => recorder()}
+                    user={ME}
+                />
+            </ImageBackground>
+        </SafeAreaView>
+    );
 }
 
 export default Chat;
