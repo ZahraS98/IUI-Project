@@ -26,7 +26,7 @@ pip install -r requirements.txt
 python flaksServer.py
 ```  
 
-Head over to [http://127.0.0.1:5000/](http://127.0.0.1:5000/) on your favourite browser.
+Head over to [http://192.168.2.131:5000](http://192.168.2.131:5000) on your favourite browser.
 
 ### Jupyter Notebook
 
