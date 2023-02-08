@@ -43,7 +43,7 @@ const Chat = () => {
             },
             {
                 _id: 3,
-                text: "Hello, I'm GGEEZ, here to help you find a video game that you all like to play.",
+                text: "Hello, I'm GGEZ, here to help you find a video game that you all like to play.",
                 createdAt: new Date(),
                 user: BOT,
                 video: "",
@@ -211,11 +211,12 @@ const Chat = () => {
         });
 
         const audioBase64 = await blobToBase64(blob);
+        const cleanBase64 = audioBase64.replace(/^data:audio\/[a-z]+;base64,/, "");
 
-        console.log(audioBase64);
+        console.log(cleanBase64);
 
         sendAudio(JSON.stringify({
-            inputFile: audioBase64
+            inputFile: cleanBase64
         }));
 
         blob.close()
