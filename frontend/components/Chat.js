@@ -194,6 +194,7 @@ const Chat = () => {
         };
 
         const audioURI = recording.getURI();
+
         console.log('Recording stopped and stored at', audioURI);
 
         const blob = await new Promise((resolve, reject) => {
@@ -210,6 +211,8 @@ const Chat = () => {
         });
 
         const audioBase64 = await blobToBase64(blob);
+
+        console.log(audioBase64);
 
         sendAudio(JSON.stringify({
             inputFile: audioBase64
@@ -230,8 +233,7 @@ const Chat = () => {
         return (
             <View>
                 <Pressable
-                    onPressIn={startRecording}
-                    onPressOut={stopRecording}
+                    onPress={recording ? stopRecording : startRecording}
                     android_ripple={{
                         color: '#dddddd',
                         radius: 100

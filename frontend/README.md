@@ -31,7 +31,7 @@ For `expo-cli` <mark>`sudo`</mark> might be needed for installation
 
 ## Usage
 
-- To start the <mark>local</mark> expo server, type `npx expo start` in same directory as package.json file <br/>
+- To start the <mark>local</mark> expo server, type `npx expo start` in same directory as <mark>package.json</mark> file <br/>
    - To connect to official expo server, type `expo start` <br/>
 - For ADV: 
   - Start Emulator
