@@ -40,3 +40,5 @@ For `expo-cli` <mark>`sudo`</mark> might be needed for installation
   - Scan QR-Code and follow the link. It will open the app in your Expo Go App
 
 ## Contributing
+
+Rebecca Fendt
