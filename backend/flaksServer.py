@@ -185,7 +185,8 @@ def text_response():
 
     text = input_data["text"]
     chat.append(text)
-    apiResponse = make_initial_recommendation(identify_slot(text))
+    print("text = ", text)
+    apiResponse = make_initial_recommendation(text)
 
     return Response(json.dumps(apiResponse), mimetype='application/json'), 201
 
@@ -239,7 +240,7 @@ def text_final_response():
 def make_initial_recommendation(searchTerms, df=df):
     new_row = df.iloc[-1, :].copy()  # creating a copy of the last row of the
     # dataset, which we will use to input the user's input
-
+    print("searchterms is equal to ", searchTerms)
     # grabbing the new wordsoup from the user
     new_row['soup'] = searchTerms
     new_row['title'] = 'UserInput'
@@ -276,14 +277,14 @@ def make_initial_recommendation(searchTerms, df=df):
 
 
 def final_recs(user_input):
-    count_vectorizer = CountVectorizer()
+    #count_vectorizer = CountVectorizer()
     # user_input = "Some string that is basically the user's input"
-    user_input_count_vector = count_vectorizer.transform([user_input])
-    pickled_model = pickle.load(open('lr_model.pkl', 'rb'))
-    pickled_model.predict(user_input_count_vector)
+    #user_input_count_vector = count_vectorizer.transform([user_input])
+    #pickled_model = pickle.load(open('lr_model.pkl', 'rb'))
+    #pickled_model.predict(user_input_count_vector)
 
     resp = make_initial_recommendation(user_input)
     return resp
 
 
-app.run(host="192.168.2.131", port=3000)
+app.run(host="0.0.0.0", port=5000)

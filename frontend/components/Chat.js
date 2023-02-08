@@ -1,7 +1,7 @@
 import {fetch} from "react-native/Libraries/Network/fetch";
-const {Audio, Video, AVPlaybackStatus} = require("expo-av");
+const {Audio} = require("expo-av");
 const {useState, React} = require("react");
-const {ImageBackground, StyleSheet, SafeAreaView, View, Pressable, Button} = require("react-native");
+const {ImageBackground, StyleSheet, SafeAreaView, View, Pressable} = require("react-native");
 const {GiftedChat, Send} = require("react-native-gifted-chat");
 const {MaterialCommunityIcons, FontAwesome} = require("@expo/vector-icons");
 const MediaLibrary = require("expo-media-library");
@@ -20,9 +20,11 @@ const ME = {
     avatar: user,
 }
 
-const server = "http://192.168.2.131:5000"
+const server = "http://192.168.2.143:5000"
 
 const Chat = () => {
+
+    const [finalRec, setFinalRec] = useState(false);
 
     const [state, setState] = useState({
         messages: [
@@ -83,7 +85,7 @@ const Chat = () => {
         }));
     }
 
-    function sendMessageToServer(text) {
+    function sendGenreMessageToServer(text) {
 
         const requestOptions = {
             method: "POST",
@@ -98,7 +100,37 @@ const Chat = () => {
                 return response.json();
             })
             .then(data => {
+                console.log(data);
+                sendBotResponse("Please take a look at the following video trailers");
+                sendBotResponse(data[0][0] + ": \n" + data[0][1]);
+                sendBotResponse(data[1][0] + ": \n" + data[1][1]);
+                sendBotResponse(data[2][0] + ": \n" + data[2][1]);
+                return data;
+            })
+            .catch(error => {
+                    console.log(error);
+                }
+            );
+    }
+
+    function sendFinalMessageToServer(text) {
+
+        const requestOptions = {
+            method: "POST",
+            headers: {"content-type": "application/json"},
+            body: JSON.stringify({text: text})
+        }
+
+        fetch((server + "/textfinalinput"), requestOptions)
+            .then(response => {
+                console.log(response.status);
+                console.log(response.headers);
+                return response.json();
+            })
+            .then(data => {
                 console.log(data.toString());
+                sendBotResponse("I think this video game is the right one.");
+                sendBotResponse(data[0][0] + ": \n" + data[0][1]);
                 return data;
             })
             .catch(error => {
@@ -115,7 +147,14 @@ const Chat = () => {
         }));
 
         let messageText = messages[0].text;
-        sendMessageToServer(messageText);
+
+        if (finalRec) {
+            sendFinalMessageToServer(messageText);
+        } else {
+            setFinalRec(true);
+            sendGenreMessageToServer(messageText);
+        }
+
     }
 
     const customSend = props => {
@@ -163,7 +202,7 @@ const Chat = () => {
         }
     }
 
-    function sendAudio(file) {
+    function sendGenreAudio(file) {
 
         let requestOptions = {
             method: "POST",
@@ -180,9 +219,39 @@ const Chat = () => {
             )
             .then(result => {
                 console.log(result)
-                sendMeMessage(result[0])
+                sendMeMessage(result[0]);
+                sendBotResponse("Please take a look at the following video trailers");
+                sendBotResponse(result[1][0] + ": \n" + result[1][1]);
+                sendBotResponse(result[2][0] + ": \n" + result[2][1]);
+                sendBotResponse(result[3][0] + ": \n" + result[3][1]);
             })
             .catch(error => console.log('error', error));
+
+    }
+
+    function sendFinalAudio(file) {
+
+        let requestOptions = {
+            method: "POST",
+            header: "content-type: multipart/form-data",
+            body: file
+        }
+
+        fetch((server + "/finalinput"), requestOptions)
+            .then(response => {
+                    console.log(response.status);
+                    console.log(response.headers);
+                    return response.json()
+                }
+            )
+            .then(result => {
+                console.log(result)
+                sendMeMessage(result[0])
+                sendBotResponse("I think this video game is the right one.");
+                sendBotResponse(result[1][0] + ": \n" + result[1][1]);
+            })
+            .catch(error => console.log('error', error));
+
     }
 
     async function stopRecording() {
@@ -230,9 +299,16 @@ const Chat = () => {
         const audioBase64 = await blobToBase64(blob);
         const cleanBase64 = audioBase64.replace(/^data:audio\/[a-z]+;base64,/, "");
 
-        sendAudio(JSON.stringify({
-            inputFile: cleanBase64
-        }));
+        if(finalRec) {
+            sendGenreAudio(JSON.stringify({
+                inputFile: cleanBase64
+            }));
+        } else {
+            setFinalRec(true)
+            sendFinalAudio(JSON.stringify({
+                inputFile: cleanBase64
+            }));
+        }
 
         blob.close()
     }
