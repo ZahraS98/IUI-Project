@@ -1,5 +1,4 @@
 import {fetch} from "react-native/Libraries/Network/fetch";
-
 const {Audio} = require("expo-av");
 const {useState, React} = require("react");
 const {ImageBackground, StyleSheet, SafeAreaView, View, Pressable} = require("react-native");
@@ -219,7 +218,6 @@ const Chat = () => {
         blob.close()
     }
 
-
     function getDurationFormatted(millis) {
         const minutes = millis / 1000 / 60;
         const minutesDisplay = Math.floor(minutes);
@@ -253,8 +251,6 @@ const Chat = () => {
             </View>
         );
     }
-
-// ###############################  Video  ##############################
 
 // ###############################  Chat  ##############################
 
