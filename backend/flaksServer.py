@@ -4,7 +4,7 @@ import io
 import os
 
 import spacy
-from flask import Flask, request, jsonify, render_template
+from flask import Flask, request, jsonify, render_template, Response
 import json
 import base64
 
@@ -13,7 +13,7 @@ from pydub import AudioSegment
 
 sp = spacy.load('en_core_web_sm')
 
-os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "/home/pierre/key.json"
+os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "/home/blabla/key.json"
 
 RATE = 44100
 
@@ -118,14 +118,6 @@ def identify_slot(input):
                 actikon = str(sentence[i])
 
         elif actikon != "":
-            """
-
-            if word.pos_ == "PUNCT":
-                objet = objet[:-1]
-                print("<" + actikon + "," + objet + ">")
-                actikon = ""
-                objet = ""
-            else:"""
             if str(word) in slot_game_type_dictionary.keys():
                 objet += next(v for k, v in slot_game_type_dictionary.items() if str(word) in k) + " "
                 slots.append(next(v for k, v in slot_game_type_dictionary.items() if str(word) in k))
@@ -156,22 +148,22 @@ def audioResponse():
     m4a_file.write(decoded_input)
 
     wav_filename = r"inputFile.wav"
-    track = AudioSegment.from_file(nfile_name,  format= 'm4a')
+    track = AudioSegment.from_file(nfile_name, format='m4a')
     file_handle = track.export(wav_filename, format='wav')
-
-    with io.open(wav_filename, "rb") as audio_file:
+    sound = AudioSegment.from_wav(wav_filename)
+    sound = sound.set_channels(1)
+    sound.export("inputMono.wav", format="wav")
+    with io.open("inputMono.wav", "rb") as audio_file:
         content = audio_file.read()
-
     audio = speech.RecognitionAudio(content=content)
-
     response = client.recognize(config=config, audio=audio)
 
-    global apiResponse
-
+    apiResponse = []
     for result in response.results:
-        apiResponse = identify_slot(format(result.alternatives[0].transcript))
+        apiResponse.append(format(result.alternatives[0].transcript))
+        apiResponse.append(identify_slot(format(result.alternatives[0].transcript)))
 
-    return jsonify(apiResponse), 201
+    return Response(json.dumps(apiResponse), mimetype='application/json'), 201
 
 
 @app.route("/textinput", methods=["POST"])
@@ -198,4 +190,4 @@ def test():
     return jsonify("something")
 
 
-app.run(host="192.168.2.131", port=3000)
+app.run(host="192.168.2.131", port=5000)
