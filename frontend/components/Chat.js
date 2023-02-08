@@ -1,7 +1,7 @@
 import {fetch} from "react-native/Libraries/Network/fetch";
-const {Audio, Video, AVPlaybackStatus} = require("expo-av");
+const {Audio} = require("expo-av");
 const {useState, React} = require("react");
-const {ImageBackground, StyleSheet, SafeAreaView, View, Pressable, Button} = require("react-native");
+const {ImageBackground, StyleSheet, SafeAreaView, View, Pressable} = require("react-native");
 const {GiftedChat, Send} = require("react-native-gifted-chat");
 const {MaterialCommunityIcons, FontAwesome} = require("@expo/vector-icons");
 const MediaLibrary = require("expo-media-library");
@@ -28,20 +28,13 @@ const Chat = () => {
         messages: [
             {
                 _id: 1,
-                text: "Popular video game genres are: Action, RPGs or Shooters",
-                createdAt: new Date(),
-                user: BOT,
-                video: "",
-            },
-            {
-                _id: 2,
                 text: "What kind of video games do you like?",
                 createdAt: new Date(),
                 user: BOT,
                 video: "",
             },
             {
-                _id: 3,
+                _id: 2,
                 text: "Hello, I'm GGEZ, here to help you pick a video game.",
                 createdAt: new Date(),
                 user: BOT,
@@ -319,9 +312,4 @@ const styles = StyleSheet.create({
         marginHorizontal: 5,
         justifyContent: "center",
     },
-    video: {
-        alignSelf: 'center',
-        width: 350,
-        height: 220,
-    }
 });
