@@ -41,7 +41,7 @@ For `expo-cli` <mark>`sudo`</mark> might be needed for installation
 
 ### App Usage
 
-<img title="Usage of UI" src="/assets/GGEEZ-Bot.png">
+![Screenshot of UI](https://github.com/ZahraS98/IUI-Project/blob/main/frontend/assets/GGEEZ-Bot.png)
 
 ## Contributing
 
