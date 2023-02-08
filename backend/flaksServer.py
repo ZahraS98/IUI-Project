@@ -9,6 +9,7 @@ import json
 import base64
 
 from google.cloud import speech
+from pydub import AudioSegment
 
 sp = spacy.load('en_core_web_sm')
 
@@ -148,13 +149,17 @@ def audioResponse():
 
     decoded_input = base64.b64decode(input_file)
 
-    fileType = "wav"
+    fileType = "m4a"
     nfile_name = "inputFile." + fileType
-    input_file.name = nfile_name
-    input_file.save(os.path.join("input", input_file.filename))
-    os.rename("input/" + input_file.filename, "input/" + nfile_name)
 
-    with io.open(nfile_name, "rb") as audio_file:
+    m4a_file = open(nfile_name, "wb")
+    m4a_file.write(decoded_input)
+
+    wav_filename = r"inputFile.wav"
+    track = AudioSegment.from_file(nfile_name,  format= 'm4a')
+    file_handle = track.export(wav_filename, format='wav')
+
+    with io.open(wav_filename, "rb") as audio_file:
         content = audio_file.read()
 
     audio = speech.RecognitionAudio(content=content)
