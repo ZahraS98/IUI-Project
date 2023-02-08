@@ -20,7 +20,7 @@ import pickle
 
 sp = spacy.load('en_core_web_sm')
 
-os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "/home/blabla/key.json"
+os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "/home/blabla/key.json" # <- Put Path to your key.json for google speech here
 
 RATE = 44100
 
