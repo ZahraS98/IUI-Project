@@ -190,4 +190,67 @@ def test():
     return jsonify("something")
 
 
-app.run(host="192.168.2.131", port=5000)
+import pandas as pd
+import nltk
+import sys # needed this for certain print options during debugging
+import numpy as np #lmao why did we not have this before
+from sklearn.feature_extraction.text import CountVectorizer
+from ast import literal_eval
+from sklearn.feature_extraction.text import CountVectorizer
+from sklearn.metrics.pairwise import cosine_similarity
+from itertools import chain
+import pickle
+
+# Initial dataframe
+df = pd.read_csv('data/final_dataset.csv', converters={'ProcessTokens': literal_eval})
+df['ProcessTokens'] = df['ProcessTokens'].astype("string")
+
+def make_initial_recommendation(searchTerms, df=df):
+    new_row = df.iloc[-1,:].copy() #creating a copy of the last row of the 
+    #dataset, which we will use to input the user's input
+
+    #grabbing the new wordsoup from the user
+    new_row['soup'] = searchTerms
+    new_row['title'] = 'UserInput'
+
+    #adding the new row to the dataset
+    df = df.append(new_row)
+#     df.iloc[-1] = searchTerms #adding the input to our new row
+
+    #Vectorizing the entire matrix as described above!
+    count = CountVectorizer(stop_words='english')
+    count_matrix = count.fit_transform(df['soup'])
+
+    #running pairwise cosine similarity 
+    cosine_sim2 = cosine_similarity(count_matrix, count_matrix) #getting a similarity matrix
+
+    #sorting cosine similarities by highest to lowest
+    sim_scores = list(enumerate(cosine_sim2[-1,:]))
+    sim_scores = sorted(sim_scores, key=lambda x: x[1], reverse=True)
+    i = 3
+    inc = 1 # we start from the 1-th row because, the 0th row is the input itself. dont want that.
+    
+    ranked_titles = []
+    while i>=0:
+        indx = sim_scores[inc][0]
+        inc = inc + 1
+        current_title = df['title'].iloc[indx]
+        if(current_title == 'UserInput'):
+            continue
+        if(current_title not in chain(*ranked_titles)):
+            ranked_titles.append([df['title'].iloc[indx], df['url'].iloc[indx]])
+            i = i - 1
+
+    return ranked_titles
+
+def final_recs(user_input):
+    count_vectorizer = CountVectorizer()
+    # user_input = "Some string that is basically the user's input"
+    user_input_count_vector = count_vectorizer.transform([user_input])
+    pickled_model = pickle.load(open('lr_model.pkl', 'rb'))
+    pickled_model.predict(user_input_count_vector)
+
+    resp = make_initial_recommendation(user_input)
+    return resp
+
+app.run(host="192.168.2.131", port=3000)
