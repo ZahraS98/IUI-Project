@@ -8,7 +8,7 @@ from flask import Flask, request, jsonify, render_template
 import json
 import base64
 
-#from google.cloud import speech
+from google.cloud import speech
 
 sp = spacy.load('en_core_web_sm')
 
