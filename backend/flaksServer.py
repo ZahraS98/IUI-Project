@@ -6,6 +6,7 @@ import os
 import spacy
 from flask import Flask, request, jsonify, render_template
 import json
+import base64
 
 from google.cloud import speech
 
@@ -139,9 +140,14 @@ def hello():
     return render_template("index.html")
 
 
-@app.route("/input", methods=['GET', 'POST'])
+@app.route("/input", methods=["GET", "POST"])
 def audioResponse():
-    input_file = request.files['inputFile']
+    input_data = json.loads(request.data)
+    input_file = input_data["inputFile"]
+    files.append(input_file)
+
+    decoded_input = base64.b64decode(input_file)
+
     fileType = "wav"
     nfile_name = "inputFile." + fileType
     input_file.name = nfile_name
@@ -160,12 +166,12 @@ def audioResponse():
     for result in response.results:
         apiResponse = identify_slot(format(result.alternatives[0].transcript))
 
-    return apiResponse
+    return jsonify(apiResponse), 201
 
 
 @app.route("/textinput", methods=["POST"])
 def text_response():
-    input_data = json.loads(request.data)
+    input_data = request.form
 
     if input_data is None:
         return jsonify({"error": "Input is None"}), 404
@@ -187,4 +193,4 @@ def test():
     return jsonify("something")
 
 
-app.run(host="192.168.2.143", port="3000")
+app.run(host="192.168.2.131", port=3000)
