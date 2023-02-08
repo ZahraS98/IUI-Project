@@ -15,14 +15,14 @@ For `expo-cli` <mark>`sudo`</mark> might be needed for installation
 
 ### For Running App on Android Emulator
 
- - Install [`Android Studio`](https://developer.android.com/studio/install) on machine (Linux: Available in Snap Store). <br/>
+ - Install [`Android Studio`](https://developer.android.com/studio/install) on machine (For Linux: Available in Snap Store). <br/>
  - Open Android Studio 
  - From Android Studio Welcome screen, select **More Actions > Virtual Device Manager**
  - After opening a project, select **View > Tool Windows > Device Manager** from the main menu bar, and then click **Create device**
  - Be sure to check that during creation the column of **Play Store** <mark>shows</mark> Play Store Icon
  - Configs for Device used to test:
    - Pixel 2 API 31
- - Make sure that same Android SDK is also installed on machine
+ - Make sure that the same Android SDK is also installed on machine
  - For official ADV Guide, click [here](https://developer.android.com/studio/run/managing-avds)
  - Install Android SDK via Android Studio
    - Go to **Settings > System Settings > Android SDK** and install same SDK chosen for ADV.
@@ -38,6 +38,10 @@ For `expo-cli` <mark>`sudo`</mark> might be needed for installation
   - Then enter `a` in same console-window, where you started your expo-server. It will install the Expo Go App on your ADV and start the App
 - For Device: 
   - Scan QR-Code and follow the link. It will open the app in your Expo Go App
+
+### App Usage
+
+<img title="Usage of UI" src="/assets/GGEEZ-Bot.png">
 
 ## Contributing
 
