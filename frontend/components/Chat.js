@@ -1,11 +1,10 @@
 import {fetch} from "react-native/Libraries/Network/fetch";
-const {Audio} = require("expo-av");
+const {Audio, Video, AVPlaybackStatus} = require("expo-av");
 const {useState, React} = require("react");
-const {ImageBackground, StyleSheet, SafeAreaView, View, Pressable} = require("react-native");
+const {ImageBackground, StyleSheet, SafeAreaView, View, Pressable, Button} = require("react-native");
 const {GiftedChat, Send} = require("react-native-gifted-chat");
 const {MaterialCommunityIcons, FontAwesome} = require("@expo/vector-icons");
 const MediaLibrary = require("expo-media-library");
-const {base64} = require("react-native-base64");
 
 const ggeez = require('../assets/bot.png');
 const BOT = {
@@ -21,7 +20,7 @@ const ME = {
     avatar: user,
 }
 
-const server = "http://192.168.2.131:3000"
+const server = "http://192.168.2.131:5000"
 
 const Chat = () => {
 
@@ -36,14 +35,14 @@ const Chat = () => {
             },
             {
                 _id: 2,
-                text: "To make a recommendation, I need to know which type of genre you prefer - just type or record your answer. ",
+                text: "What kind of video games do you like?",
                 createdAt: new Date(),
                 user: BOT,
                 video: "",
             },
             {
                 _id: 3,
-                text: "Hello, I'm GGEZ, here to help you find a video game that you all like to play.",
+                text: "Hello, I'm GGEZ, here to help you pick a video game.",
                 createdAt: new Date(),
                 user: BOT,
                 video: "",
@@ -69,6 +68,21 @@ const Chat = () => {
         }));
     }
 
+    function sendMeMessage(text) {
+        let msg = {
+            _id: state.messages.length + 1,
+            text,
+            createdAt: new Date(),
+            user: ME,
+            audio: "",
+            video: "",
+        };
+
+        setState((prevState) => ({
+            messages: GiftedChat.append(prevState.messages, [msg])
+        }));
+    }
+
     function sendMessageToServer(text) {
 
         const requestOptions = {
@@ -85,7 +99,7 @@ const Chat = () => {
             })
             .then(data => {
                 console.log(data.toString());
-                sendBotResponse(data);
+                return data;
             })
             .catch(error => {
                     console.log(error);
@@ -164,7 +178,10 @@ const Chat = () => {
                     return response.json()
                 }
             )
-            .then(result => console.log(result))
+            .then(result => {
+                console.log(result)
+                sendMeMessage(result[0])
+            })
             .catch(error => console.log('error', error));
     }
 
@@ -253,7 +270,7 @@ const Chat = () => {
         );
     }
 
-// ###############################  Chat  ##############################
+    // ###############################  Chat  ##############################
 
     return (
         <SafeAreaView style={styles.background}>
@@ -301,5 +318,10 @@ const styles = StyleSheet.create({
         overflow: "hidden",
         marginHorizontal: 5,
         justifyContent: "center",
+    },
+    video: {
+        alignSelf: 'center',
+        width: 350,
+        height: 220,
     }
 });
