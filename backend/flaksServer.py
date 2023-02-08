@@ -176,7 +176,7 @@ def audioResponse():
 
 @app.route("/textinput", methods=["POST"])
 def text_response():
-    input_data = request.form
+    input_data = request.json
 
     if input_data is None:
         return jsonify({"error": "Input is None"}), 404

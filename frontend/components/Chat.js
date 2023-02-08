@@ -213,8 +213,6 @@ const Chat = () => {
         const audioBase64 = await blobToBase64(blob);
         const cleanBase64 = audioBase64.replace(/^data:audio\/[a-z]+;base64,/, "");
 
-        console.log(cleanBase64);
-
         sendAudio(JSON.stringify({
             inputFile: cleanBase64
         }));
