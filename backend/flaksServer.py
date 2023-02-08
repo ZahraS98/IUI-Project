@@ -11,6 +11,13 @@ import base64
 from google.cloud import speech
 from pydub import AudioSegment
 
+import pandas as pd
+from ast import literal_eval
+from sklearn.feature_extraction.text import CountVectorizer
+from sklearn.metrics.pairwise import cosine_similarity
+from itertools import chain
+import pickle
+
 sp = spacy.load('en_core_web_sm')
 
 os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "/home/blabla/key.json"
@@ -84,13 +91,16 @@ for i in range(len(game_type)):
     for word in game_type_slot[i]:
         slot_game_type_dictionary[word] = game_type[i]
 
+# Initial dataframe
+df = pd.read_csv('data/final_dataset.csv', converters={'ProcessTokens': literal_eval})
+df['ProcessTokens'] = df['ProcessTokens'].astype("string")
 
 def identify_slot(input):
     # Take a String as an input and tries to find a verb using POS.
     # If it finds one, it prints it along with the text that follows as an <actikon,target> couple.
     # If there are multiple sentences, it print every couple present in each sentence.
 
-    slots = []
+    slots = ""
 
     i = 0
     actikon = ""
@@ -120,7 +130,7 @@ def identify_slot(input):
         elif actikon != "":
             if str(word) in slot_game_type_dictionary.keys():
                 objet += next(v for k, v in slot_game_type_dictionary.items() if str(word) in k) + " "
-                slots.append(next(v for k, v in slot_game_type_dictionary.items() if str(word) in k))
+                slots += next(v for k, v in slot_game_type_dictionary.items() if str(word) in k) + " "
             else:
                 objet += str(sentence[i]) + " "
         i += 1
@@ -161,7 +171,7 @@ def audioResponse():
     apiResponse = []
     for result in response.results:
         apiResponse.append(format(result.alternatives[0].transcript))
-        apiResponse.append(identify_slot(format(result.alternatives[0].transcript)))
+        apiResponse.append(make_initial_recommendation(identify_slot(format(result.alternatives[0].transcript))))
 
     return Response(json.dumps(apiResponse), mimetype='application/json'), 201
 
@@ -175,73 +185,95 @@ def text_response():
 
     text = input_data["text"]
     chat.append(text)
-    apiResponse = identify_slot(text)
+    apiResponse = make_initial_recommendation(identify_slot(text))
 
-    return jsonify(apiResponse), 201
-
-
-@app.route("/textinput", methods=["GET"])
-def get_text():
-    return jsonify(chat)
+    return Response(json.dumps(apiResponse), mimetype='application/json'), 201
 
 
-@app.route("/test", methods=["GET"])
-def test():
-    return jsonify("something")
+@app.route("/finalinput", methods=["GET", "POST"])
+def audio_final_Response():
+    input_data = json.loads(request.data)
+    input_file = input_data["inputFile"]
+    files.append(input_file)
+
+    decoded_input = base64.b64decode(input_file)
+
+    fileType = "m4a"
+    nfile_name = "inputFile." + fileType
+
+    m4a_file = open(nfile_name, "wb")
+    m4a_file.write(decoded_input)
+
+    wav_filename = r"inputFile.wav"
+    track = AudioSegment.from_file(nfile_name, format='m4a')
+    file_handle = track.export(wav_filename, format='wav')
+    sound = AudioSegment.from_wav(wav_filename)
+    sound = sound.set_channels(1)
+    sound.export("inputMono.wav", format="wav")
+    with io.open("inputMono.wav", "rb") as audio_file:
+        content = audio_file.read()
+    audio = speech.RecognitionAudio(content=content)
+    response = client.recognize(config=config, audio=audio)
+
+    apiResponse = []
+    for result in response.results:
+        apiResponse.append(format(result.alternatives[0].transcript))
+        apiResponse.append(final_recs(format(result.alternatives[0].transcript)))
+
+    return Response(json.dumps(apiResponse), mimetype='application/json'), 201
 
 
-import pandas as pd
-import nltk
-import sys # needed this for certain print options during debugging
-import numpy as np #lmao why did we not have this before
-from sklearn.feature_extraction.text import CountVectorizer
-from ast import literal_eval
-from sklearn.feature_extraction.text import CountVectorizer
-from sklearn.metrics.pairwise import cosine_similarity
-from itertools import chain
-import pickle
+@app.route("/textfinalinput", methods=["POST"])
+def text_final_response():
+    input_data = request.json
 
-# Initial dataframe
-df = pd.read_csv('data/final_dataset.csv', converters={'ProcessTokens': literal_eval})
-df['ProcessTokens'] = df['ProcessTokens'].astype("string")
+    if input_data is None:
+        return jsonify({"error": "Input is None"}), 404
+
+    text = input_data["text"]
+    chat.append(text)
+    apiResponse = final_recs(text)
+
+    return Response(json.dumps(apiResponse), mimetype='application/json'), 201
 
 def make_initial_recommendation(searchTerms, df=df):
-    new_row = df.iloc[-1,:].copy() #creating a copy of the last row of the 
-    #dataset, which we will use to input the user's input
+    new_row = df.iloc[-1, :].copy()  # creating a copy of the last row of the
+    # dataset, which we will use to input the user's input
 
-    #grabbing the new wordsoup from the user
+    # grabbing the new wordsoup from the user
     new_row['soup'] = searchTerms
     new_row['title'] = 'UserInput'
 
-    #adding the new row to the dataset
+    # adding the new row to the dataset
     df = df.append(new_row)
-#     df.iloc[-1] = searchTerms #adding the input to our new row
+    #     df.iloc[-1] = searchTerms #adding the input to our new row
 
-    #Vectorizing the entire matrix as described above!
+    # Vectorizing the entire matrix as described above!
     count = CountVectorizer(stop_words='english')
     count_matrix = count.fit_transform(df['soup'])
 
-    #running pairwise cosine similarity 
-    cosine_sim2 = cosine_similarity(count_matrix, count_matrix) #getting a similarity matrix
+    # running pairwise cosine similarity
+    cosine_sim2 = cosine_similarity(count_matrix, count_matrix)  # getting a similarity matrix
 
-    #sorting cosine similarities by highest to lowest
-    sim_scores = list(enumerate(cosine_sim2[-1,:]))
+    # sorting cosine similarities by highest to lowest
+    sim_scores = list(enumerate(cosine_sim2[-1, :]))
     sim_scores = sorted(sim_scores, key=lambda x: x[1], reverse=True)
     i = 3
-    inc = 1 # we start from the 1-th row because, the 0th row is the input itself. dont want that.
-    
+    inc = 1  # we start from the 1-th row because, the 0th row is the input itself. dont want that.
+
     ranked_titles = []
-    while i>=0:
+    while i >= 0:
         indx = sim_scores[inc][0]
         inc = inc + 1
         current_title = df['title'].iloc[indx]
-        if(current_title == 'UserInput'):
+        if (current_title == 'UserInput'):
             continue
-        if(current_title not in chain(*ranked_titles)):
+        if (current_title not in chain(*ranked_titles)):
             ranked_titles.append([df['title'].iloc[indx], df['url'].iloc[indx]])
             i = i - 1
 
     return ranked_titles
+
 
 def final_recs(user_input):
     count_vectorizer = CountVectorizer()
@@ -252,5 +284,6 @@ def final_recs(user_input):
 
     resp = make_initial_recommendation(user_input)
     return resp
+
 
 app.run(host="192.168.2.131", port=3000)
